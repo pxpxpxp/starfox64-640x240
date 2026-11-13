@@ -1,0 +1,1237 @@
+{
+  "scope": "Fresh November13 softwareRDP/LLE smoke; no hardware/rumble/audio/persistence certification",
+  "rows": [
+    {
+      "frame": 60,
+      "seconds": 1.44,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 103,
+        "gPlayState": 0,
+        "gGameFrameCount": 0,
+        "gVIsPerFrame": 0
+      }
+    },
+    {
+      "frame": 180,
+      "seconds": 2.41,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 2,
+        "gPlayState": 0,
+        "gGameFrameCount": 11,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 360,
+      "seconds": 4.61,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 2,
+        "gPlayState": 0,
+        "gGameFrameCount": 101,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 600,
+      "seconds": 9.33,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 2,
+        "gPlayState": 0,
+        "gGameFrameCount": 221,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 900,
+      "seconds": 12.91,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 3,
+        "gPlayState": 0,
+        "gGameFrameCount": 93,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 1200,
+      "seconds": 17.12,
+      "vi": [
+        "0x1300e",
+        "0x5cac80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 4,
+        "gPlayState": 0,
+        "gGameFrameCount": 97,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 1800,
+      "seconds": 24.31,
+      "vi": [
+        "0x1300e",
+        "0x5cac80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 4,
+        "gPlayState": 0,
+        "gGameFrameCount": 397,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 2400,
+      "seconds": 31.59,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 19,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 3000,
+      "seconds": 42.35,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 319,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 3600,
+      "seconds": 52.25,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 619,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 4200,
+      "seconds": 66.18,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 915,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 4800,
+      "seconds": 76.85,
+      "vi": [
+        "0x1300e",
+        "0x534c80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1210,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5400,
+      "seconds": 88.37,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1510,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5610,
+      "seconds": 92.32,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1615,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5640,
+      "seconds": 92.71,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1630,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5670,
+      "seconds": 93.17,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1645,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5700,
+      "seconds": 93.64,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1660,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5730,
+      "seconds": 94.33,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1675,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5760,
+      "seconds": 94.97,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1690,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5790,
+      "seconds": 95.53,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1705,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5820,
+      "seconds": 96.09,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1720,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5850,
+      "seconds": 96.59,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1735,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5880,
+      "seconds": 97.05,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1750,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5910,
+      "seconds": 97.49,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1765,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5940,
+      "seconds": 98.07,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1780,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 5970,
+      "seconds": 98.67,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 100,
+        "gGameFrameCount": 1782,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6000,
+      "seconds": 99.23,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1794,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6030,
+      "seconds": 99.71,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1809,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6060,
+      "seconds": 100.25,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1824,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6090,
+      "seconds": 100.74,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1839,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6120,
+      "seconds": 101.31,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1854,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6150,
+      "seconds": 101.74,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1869,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6180,
+      "seconds": 102.19,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1884,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6210,
+      "seconds": 102.81,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 100,
+        "gGameFrameCount": 1886,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6240,
+      "seconds": 103.37,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1898,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6270,
+      "seconds": 103.85,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1913,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6300,
+      "seconds": 104.35,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1928,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6330,
+      "seconds": 104.88,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1943,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6360,
+      "seconds": 105.38,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1958,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6390,
+      "seconds": 105.93,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1973,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6420,
+      "seconds": 106.46,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 1988,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6450,
+      "seconds": 106.97,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 100,
+        "gGameFrameCount": 1990,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6480,
+      "seconds": 107.48,
+      "vi": [
+        "0x1300e",
+        "0x57fc80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 2002,
+        "gVIsPerFrame": 2
+      }
+    },
+    {
+      "frame": 6500,
+      "seconds": 107.77,
+      "vi": [
+        "0x1300e",
+        "0x5cac80",
+        "0x280",
+        "0x2",
+        "0x0",
+        "0x3e52239",
+        "0x20d",
+        "0xc15",
+        "0xc150c15",
+        "0x6c02ec",
+        "0x2501ff",
+        "0xe0204",
+        "0x400",
+        "0x400"
+      ],
+      "width": 640,
+      "height": 240,
+      "state": {
+        "gGameState": 7,
+        "gPlayState": 2,
+        "gGameFrameCount": 2012,
+        "gVIsPerFrame": 2
+      }
+    }
+  ]
+}

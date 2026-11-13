@@ -1,0 +1,645 @@
+diff --git a/Makefile b/Makefile
+index 119d839..e9eb07e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -506,7 +506,7 @@ disasm:
+ #### Various Recipes ####
+ 
+ # Final ROM
+-$(ROMC): $(BASEROM_UNCOMPRESSED)
++$(ROMC): $(ROM) $(BASEROM_UNCOMPRESSED)
+ 	$(call print,Compressing ROM...,$<,$@)
+ 	@$(PYTHON) $(COMPTOOL) -c -m $(MIO0) $(ROM) $(ROMC)
+ 
+diff --git a/include/gfx.h b/include/gfx.h
+index ea9ab05..68edc64 100644
+--- a/include/gfx.h
++++ b/include/gfx.h
+@@ -7,6 +7,8 @@
+ 
+ #define SCREEN_WIDTH  320
+ #define SCREEN_HEIGHT 240
++/* Physical raster width; game/UI coordinates remain 320x240. */
++#define FRAMEBUFFER_WIDTH 640
+ 
+ #define FILL_COLOR(rgba) (((rgba) << 0x10) | (rgba))
+ #define RGBA16_RED(color16) (((color16) >> 0xB) & 0x1F)
+@@ -79,9 +81,9 @@ typedef struct Color_RGBA32 {
+ } Color_RGBA32; // size = 0x4
+ 
+ typedef union {
+-    u16 data[SCREEN_HEIGHT * SCREEN_WIDTH];
+-    u16 array[SCREEN_HEIGHT][SCREEN_WIDTH];
+-} FrameBuffer; // size = 0x25800
++    u16 data[SCREEN_HEIGHT * FRAMEBUFFER_WIDTH];
++    u16 array[SCREEN_HEIGHT][FRAMEBUFFER_WIDTH];
++} FrameBuffer; // size = 0x4B000
+ 
+ typedef bool (*OverrideLimbDraw)(s32 limbIndex, Gfx** dList,  Vec3f* pos, Vec3f* rot, void* this);
+ typedef void (*PostLimbDraw)(s32, Vec3f*, void*);
+diff --git a/include/macros.h b/include/macros.h
+index ac923cf..e84b787 100644
+--- a/include/macros.h
++++ b/include/macros.h
+@@ -5,6 +5,8 @@
+ 
+ #define SCREEN_WIDTH  320
+ #define SCREEN_HEIGHT 240
++/* Physical raster width; game/UI coordinates remain 320x240. */
++#define FRAMEBUFFER_WIDTH 640
+ #define SCREEN_MARGIN 8
+ 
+ #define TIME_IN_SECONDS(x) (x * 30);
+diff --git a/src/buffers.c b/src/buffers.c
+index 6cbe0b8..0d74ddf 100644
+--- a/src/buffers.c
++++ b/src/buffers.c
+@@ -6,5 +6,5 @@ FrameBuffer gZBuffer; // z buffer
+ u8 gTaskOutputBuffer[0x30000];
+ u8 gAudioHeap[0xB0000];
+ u16 gTextureRenderBuffer[0x3C40];
+-u16 gFillBuffer[3 * SCREEN_WIDTH];
++u16 gFillBuffer[3 * FRAMEBUFFER_WIDTH];
+ FrameBuffer gFrameBuffers[3];
+diff --git a/src/engine/fox_bg.c b/src/engine/fox_bg.c
+index bd6a0f0..35d7906 100644
+--- a/src/engine/fox_bg.c
++++ b/src/engine/fox_bg.c
+@@ -164,7 +164,7 @@ void Background_DrawStarfield(void) {
+             if ((vx >= 0) && (vx < SCREEN_WIDTH) && (vy > 0) && (vy < SCREEN_HEIGHT)) {
+                 gDPPipeSync(gMasterDisp++);
+                 gDPSetFillColor(gMasterDisp++, *color);
+-                gDPFillRectangle(gMasterDisp++, vx, vy, vx, vy);
++                gDPFillRectangle(gMasterDisp++, 2 * vx, vy, 2 * vx + 1, vy);
+             }
+         }
+     }
+@@ -233,7 +233,7 @@ void Background_DrawPartialStarfield(s32 yMin, s32 yMax) {
+         if ((vx >= 0) && (vx < SCREEN_WIDTH) && (yMin < vy) && (vy < yMax)) {
+             gDPPipeSync(gMasterDisp++);
+             gDPSetFillColor(gMasterDisp++, *sp58);
+-            gDPFillRectangle(gMasterDisp++, vx, vy, vx, vy);
++            gDPFillRectangle(gMasterDisp++, 2 * vx, vy, 2 * vx + 1, vy);
+         }
+     }
+     gDPPipeSync(gMasterDisp++);
+diff --git a/src/engine/fox_game.c b/src/engine/fox_game.c
+index 1f3e1d3..4a84373 100644
+--- a/src/engine/fox_game.c
++++ b/src/engine/fox_game.c
+@@ -157,14 +157,14 @@ bool Game_ChangeScene(void) {
+ 
+ void Game_InitMasterDL(Gfx** dList) {
+     gSPDisplayList((*dList)++, gRcpInitDL);
+-    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN,
+-                  SCREEN_HEIGHT - SCREEN_MARGIN);
++    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++        2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT - SCREEN_MARGIN);
+     gDPSetDepthImage((*dList)++, &gZBuffer);
+-    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, &gZBuffer);
++    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, FRAMEBUFFER_WIDTH, &gZBuffer);
+     gDPSetFillColor((*dList)++, FILL_COLOR(GPACK_ZDZ(G_MAXFBZ, 0)));
+-    gDPFillRectangle((*dList)++, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN - 1,
+-                     SCREEN_HEIGHT - SCREEN_MARGIN - 1);
+-    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gFrameBuffer);
++    gDPFillRectangle((*dList)++, 2 * (SCREEN_MARGIN), SCREEN_MARGIN, 2 * (SCREEN_WIDTH - SCREEN_MARGIN - 1) + 1,
++        SCREEN_HEIGHT - SCREEN_MARGIN - 1);
++    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, FRAMEBUFFER_WIDTH, gFrameBuffer);
+ 
+     if (gBlurAlpha < 255) {
+         gDPPipeSync((*dList)++);
+@@ -177,24 +177,24 @@ void Game_InitMasterDL(Gfx** dList) {
+         gDPSetFillColor((*dList)++, FILL_COLOR(gBgColor | 1));
+     }
+ 
+-    gDPFillRectangle((*dList)++, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN - 1,
+-                     SCREEN_HEIGHT - SCREEN_MARGIN);
++    gDPFillRectangle((*dList)++, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++        2 * (SCREEN_WIDTH - SCREEN_MARGIN - 1) + ((gBlurAlpha < 255) ? 0 : 1), SCREEN_HEIGHT - SCREEN_MARGIN);
+     gDPPipeSync((*dList)++);
+     gDPSetColorDither((*dList)++, G_CD_MAGICSQ);
+ }
+ 
+ void Game_InitStandbyDL(Gfx** dList) {
+     gSPDisplayList((*dList)++, gRcpInitDL);
+-    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT * 3);
++    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (0), 0, 2 * (SCREEN_WIDTH), SCREEN_HEIGHT * 3);
+     gDPSetFillColor((*dList)++, FILL_COLOR(0x0001));
+-    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gFrameBuffers[0].data);
+-    gDPFillRectangle((*dList)++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT * 3 - 1);
++    gDPSetColorImage((*dList)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, FRAMEBUFFER_WIDTH, gFrameBuffers[0].data);
++    gDPFillRectangle((*dList)++, 2 * (0), 0, 2 * (SCREEN_WIDTH - 1) + 1, SCREEN_HEIGHT * 3 - 1);
+     gDPPipeSync((*dList)++);
+     gDPSetColorDither((*dList)++, G_CD_MAGICSQ);
+ }
+ 
+ void Game_InitFullViewport(void) {
+-    gViewport->vp.vscale[0] = gViewport->vp.vtrans[0] = SCREEN_WIDTH * 2;
++    gViewport->vp.vscale[0] = gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * 2;
+     gViewport->vp.vscale[1] = gViewport->vp.vtrans[1] = SCREEN_HEIGHT * 2;
+     gViewport->vp.vscale[2] = gViewport->vp.vtrans[2] = G_MAXZ / 2;
+     gViewport->vp.vscale[3] = gViewport->vp.vtrans[3] = 0;
+@@ -205,52 +205,52 @@ void Game_InitViewport(Gfx** dList, u8 camCount, u8 camIndex) {
+         case 4:
+             switch (camIndex) {
+                 case 0:
+-                    gViewport->vp.vscale[0] = SCREEN_WIDTH * (gVsViewScale - 1.0f) * 2;
++                    gViewport->vp.vscale[0] = FRAMEBUFFER_WIDTH * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[1] = SCREEN_HEIGHT * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[2] = G_MAXZ / 2;
+                     gViewport->vp.vscale[3] = 0;
+-                    gViewport->vp.vtrans[0] = SCREEN_WIDTH * (2.0f - gVsViewScale) * 2;
++                    gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * (2.0f - gVsViewScale) * 2;
+                     gViewport->vp.vtrans[1] = SCREEN_HEIGHT * (2.0f - gVsViewScale) * 2;
+                     gViewport->vp.vtrans[2] = G_MAXZ / 2;
+                     gViewport->vp.vtrans[3] = 0;
+-                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH / 2,
+-                                  SCREEN_HEIGHT / 2);
++                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++                        2 * (SCREEN_WIDTH / 2), SCREEN_HEIGHT / 2);
+                     break;
+                 case 1:
+-                    gViewport->vp.vscale[0] = SCREEN_WIDTH * (gVsViewScale - 1.0f) * 2;
++                    gViewport->vp.vscale[0] = FRAMEBUFFER_WIDTH * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[1] = SCREEN_HEIGHT * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[2] = G_MAXZ / 2;
+                     gViewport->vp.vscale[3] = 0;
+-                    gViewport->vp.vtrans[0] = SCREEN_WIDTH * gVsViewScale * 2;
++                    gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * gVsViewScale * 2;
+                     gViewport->vp.vtrans[1] = SCREEN_HEIGHT * (2.0f - gVsViewScale) * 2;
+                     gViewport->vp.vtrans[2] = G_MAXZ / 2;
+                     gViewport->vp.vtrans[3] = 0;
+-                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, SCREEN_WIDTH / 2, SCREEN_MARGIN,
+-                                  SCREEN_WIDTH - SCREEN_MARGIN, SCREEN_HEIGHT / 2);
++                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (SCREEN_WIDTH / 2), SCREEN_MARGIN,
++                        2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT / 2);
+                     break;
+                 case 2:
+-                    gViewport->vp.vscale[0] = SCREEN_WIDTH * (gVsViewScale - 1.0f) * 2;
++                    gViewport->vp.vscale[0] = FRAMEBUFFER_WIDTH * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[1] = SCREEN_HEIGHT * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[2] = G_MAXZ / 2;
+                     gViewport->vp.vscale[3] = 0;
+-                    gViewport->vp.vtrans[0] = SCREEN_WIDTH * (2.0f - gVsViewScale) * 2;
++                    gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * (2.0f - gVsViewScale) * 2;
+                     gViewport->vp.vtrans[1] = SCREEN_HEIGHT * gVsViewScale * 2;
+                     gViewport->vp.vtrans[2] = G_MAXZ / 2;
+                     gViewport->vp.vtrans[3] = 0;
+-                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2,
+-                                  SCREEN_HEIGHT - SCREEN_MARGIN);
++                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_HEIGHT / 2,
++                        2 * (SCREEN_WIDTH / 2), SCREEN_HEIGHT - SCREEN_MARGIN);
+                     break;
+                 case 3:
+-                    gViewport->vp.vscale[0] = SCREEN_WIDTH * (gVsViewScale - 1.0f) * 2;
++                    gViewport->vp.vscale[0] = FRAMEBUFFER_WIDTH * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[1] = SCREEN_HEIGHT * (gVsViewScale - 1.0f) * 2;
+                     gViewport->vp.vscale[2] = G_MAXZ / 2;
+                     gViewport->vp.vscale[3] = 0;
+-                    gViewport->vp.vtrans[0] = SCREEN_WIDTH * gVsViewScale * 2;
++                    gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * gVsViewScale * 2;
+                     gViewport->vp.vtrans[1] = SCREEN_HEIGHT * gVsViewScale * 2;
+                     gViewport->vp.vtrans[2] = G_MAXZ / 2;
+                     gViewport->vp.vtrans[3] = 0;
+-                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+-                                  SCREEN_WIDTH - SCREEN_MARGIN, SCREEN_HEIGHT - SCREEN_MARGIN);
++                    gDPSetScissor((*dList)++, G_SC_NON_INTERLACE, 2 * (SCREEN_WIDTH / 2), SCREEN_HEIGHT / 2,
++                        2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT - SCREEN_MARGIN);
+                     break;
+                 default:
+                     Game_InitFullViewport();
+@@ -525,8 +525,8 @@ void Game_Update(void) {
+             Game_Draw(1);
+ 
+             gDPPipeSync(gMasterDisp++);
+-            gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN,
+-                          SCREEN_HEIGHT - SCREEN_MARGIN);
++            gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++                2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT - SCREEN_MARGIN);
+         } else if ((gCamCount == 4) && (gDrawMode != DRAW_NONE)) {
+             Game_InitViewport(&gMasterDisp, gCamCount, 3);
+             Game_Draw(3);
+@@ -538,18 +538,18 @@ void Game_Update(void) {
+             Game_Draw(1);
+ 
+             gDPPipeSync(gMasterDisp++);
+-            gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN,
+-                          SCREEN_HEIGHT - SCREEN_MARGIN);
++            gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++                2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT - SCREEN_MARGIN);
+             gDPSetColorDither(gMasterDisp++, G_CD_NOISE);
+             gDPSetAlphaDither(gMasterDisp++, G_AD_NOISE);
+             gDPSetCycleType(gMasterDisp++, G_CYC_1CYCLE);
+             gDPSetCombineMode(gMasterDisp++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+             gDPSetRenderMode(gMasterDisp++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+             gDPSetPrimColor(gMasterDisp++, 0x00, 0x00, 0, 0, 0, 0);
+-            gDPFillRectangle(gMasterDisp++, SCREEN_WIDTH / 2 - 2 - 1, SCREEN_MARGIN, SCREEN_WIDTH / 2 + 2,
+-                             SCREEN_HEIGHT - SCREEN_MARGIN);
+-            gDPFillRectangle(gMasterDisp++, SCREEN_MARGIN, SCREEN_HEIGHT / 2 - 2 - 1, SCREEN_WIDTH - SCREEN_MARGIN,
+-                             SCREEN_HEIGHT / 2 + 2);
++            gDPFillRectangle(gMasterDisp++, 2 * (SCREEN_WIDTH / 2 - 2 - 1), SCREEN_MARGIN, 2 * (SCREEN_WIDTH / 2 + 2),
++                SCREEN_HEIGHT - SCREEN_MARGIN);
++            gDPFillRectangle(gMasterDisp++, 2 * (SCREEN_MARGIN), SCREEN_HEIGHT / 2 - 2 - 1,
++                2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT / 2 + 2);
+ 
+             if (gLevelType == LEVELTYPE_PLANET) {
+                 gDPSetPrimColor(gMasterDisp++, 0x00, 0x00, 0, 0, 0, 255);
+@@ -557,10 +557,10 @@ void Game_Update(void) {
+                 gDPSetPrimColor(gMasterDisp++, 0x00, 0x00, 100, 100, 255, 255);
+             }
+ 
+-            gDPFillRectangle(gMasterDisp++, SCREEN_WIDTH / 2 - 1 - 1, SCREEN_MARGIN, SCREEN_WIDTH / 2 + 1,
+-                             SCREEN_HEIGHT - SCREEN_MARGIN);
+-            gDPFillRectangle(gMasterDisp++, SCREEN_MARGIN, SCREEN_HEIGHT / 2 - 1 - 1, SCREEN_WIDTH - SCREEN_MARGIN,
+-                             SCREEN_HEIGHT / 2 + 1);
++            gDPFillRectangle(gMasterDisp++, 2 * (SCREEN_WIDTH / 2 - 1 - 1), SCREEN_MARGIN, 2 * (SCREEN_WIDTH / 2 + 1),
++                SCREEN_HEIGHT - SCREEN_MARGIN);
++            gDPFillRectangle(gMasterDisp++, 2 * (SCREEN_MARGIN), SCREEN_HEIGHT / 2 - 1 - 1,
++                2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT / 2 + 1);
+ 
+             HUD_8008CB8C();
+         }
+diff --git a/src/engine/fox_hud.c b/src/engine/fox_hud.c
+index 5fbc8e4..0ed1bfd 100644
+--- a/src/engine/fox_hud.c
++++ b/src/engine/fox_hud.c
+@@ -222,9 +222,9 @@ void TextureRect_CI8_2(Gfx** gfxP, u8* texture, u16* palette, u32 tWidth, u32 tH
+     gDPLoadTLUT((*gfxP)++, 256, 256, palette);
+     gDPLoadTextureBlock((*gfxP)++, texture, G_IM_FMT_CI, G_IM_SIZ_8b, tWidth, tHeight, 0, G_TX_NOMIRROR, G_TX_NOMIRROR,
+                         G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxP)++, (xPos * 4.0f), (yPos * 4.0f), ((xPos + (xWidth * xScale)) * 4.0f),
+-                        ((yPos + (yWidth * yScale)) * 4.0f), G_TX_RENDERTILE, 0 * 32, 0 * 32,
+-                        (s32) (1 / xScale * (32 * 32)), (s32) (1 / yScale * (32 * 32)));
++    gSPTextureRectangle((*gfxP)++, (xPos * 8.0f), (yPos * 4.0f), ((xPos + (xWidth * xScale)) * 8.0f),
++        ((yPos + (yWidth * yScale)) * 4.0f), G_TX_RENDERTILE, 0 * 32, 0 * 32, (s32) (1 / xScale * (16 * 32)),
++        (s32) (1 / yScale * (32 * 32)));
+ }
+ 
+ void HUD_MsgWindowBg_Draw(f32 xPos, f32 yPos, f32 xScale, f32 yScale) {
+diff --git a/src/engine/fox_message.c b/src/engine/fox_message.c
+index 16b1a0e..237d6ea 100644
+--- a/src/engine/fox_message.c
++++ b/src/engine/fox_message.c
+@@ -54,8 +54,8 @@ void Message_DisplayChar(Gfx** gfxPtr, u16 msgChar, s32 xpos, s32 ypos) {
+     gDPLoadTextureBlock_4b((*gfxPtr)++, gTextCharTextures[msgChar >> 2], G_IM_FMT_CI, 16, 13, msgChar % 4U,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, xpos << 2, ypos << 2, (xpos + 13) << 2, (ypos + 13) << 2, G_TX_RENDERTILE, 64, 0,
+-                        1024, 1024);
++    gSPTextureRectangle((*gfxPtr)++, 2 * (xpos << 2), ypos << 2, 2 * ((xpos + 13) << 2), (ypos + 13) << 2,
++        G_TX_RENDERTILE, 64, 0, 512, 1024);
+ }
+ 
+ bool Message_DisplayText(Gfx** gfxPtr, u16* msgPtr, s32 xPos, s32 yPos, s32 len) {
+diff --git a/src/engine/fox_reset.c b/src/engine/fox_reset.c
+index e191109..a9194e6 100644
+--- a/src/engine/fox_reset.c
++++ b/src/engine/fox_reset.c
+@@ -4,18 +4,18 @@ void Graphics_NMIWipe(void) {
+     static s16 sWipeBarLength = 0;
+     s32 i;
+ 
+-    gViewport->vp.vscale[0] = SCREEN_WIDTH * 2;
++    gViewport->vp.vscale[0] = FRAMEBUFFER_WIDTH * 2;
+     gViewport->vp.vscale[1] = SCREEN_HEIGHT * 2;
+     gViewport->vp.vscale[2] = G_MAXZ / 2;
+     gViewport->vp.vscale[3] = 0;
+-    gViewport->vp.vtrans[0] = SCREEN_WIDTH * 2;
++    gViewport->vp.vtrans[0] = FRAMEBUFFER_WIDTH * 2;
+     gViewport->vp.vtrans[1] = SCREEN_HEIGHT * 2;
+     gViewport->vp.vtrans[2] = G_MAXZ / 2;
+     gViewport->vp.vtrans[3] = 0;
+     gSPViewport(gMasterDisp++, gViewport);
+     gDPPipeSync(gMasterDisp++);
+-    gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - SCREEN_MARGIN,
+-                  SCREEN_HEIGHT - SCREEN_MARGIN);
++    gDPSetScissor(gMasterDisp++, G_SC_NON_INTERLACE, 2 * (SCREEN_MARGIN), SCREEN_MARGIN,
++        2 * (SCREEN_WIDTH - SCREEN_MARGIN), SCREEN_HEIGHT - SCREEN_MARGIN);
+ 
+     Graphics_FillRectangle(&gMasterDisp, SCREEN_MARGIN, SCREEN_MARGIN,
+                            MIN(SCREEN_WIDTH - 2 * SCREEN_MARGIN, sWipeBarLength) + SCREEN_MARGIN,
+diff --git a/src/engine/fox_std_lib.c b/src/engine/fox_std_lib.c
+index 811386b..70ee351 100644
+--- a/src/engine/fox_std_lib.c
++++ b/src/engine/fox_std_lib.c
+@@ -544,14 +544,17 @@ s32 Math_PursueVec3f(Vec3f* pos, Vec3f* target, Vec3f* rot, f32 stepSize, f32 sc
+     return (VEC3F_MAG(&diff)) < dist;
+ }
+ 
++/* Screen coordinates remain 320x240 logical pixels. Only destination X and
++ * horizontal texture derivatives change for the 640x240 framebuffer.
++ * Flipped rectangles advance texture T horizontally, so scale dtdy instead. */
+ void Lib_TextureRect_CI4(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                          f32 yScale) {
+     gDPLoadTLUT_pal16((*gfxPtr)++, 0, palette);
+     gDPLoadTextureBlock_4b((*gfxPtr)++, texture, G_IM_FMT_CI, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_CI4_Flip(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32 height, f32 xPos, f32 yPos,
+@@ -559,9 +562,9 @@ void Lib_TextureRect_CI4_Flip(Gfx** gfxPtr, u8* texture, u16* palette, u32 width
+     gDPLoadTLUT_pal16((*gfxPtr)++, 0, palette);
+     gDPLoadTextureBlock_4b((*gfxPtr)++, texture, G_IM_FMT_CI, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f),
+-                            (s32) ((xPos + width * xScale) * 4.0f), (s32) ((yPos + height * yScale) * 4.0f),
+-                            G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f),
++        (s32) ((xPos + width * xScale) * 8.0f), (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0,
++        (s32) (1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 512.0f));
+ }
+ 
+ void Lib_TextureRect_CI4_MirX(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32 height, f32 xPos, f32 yPos,
+@@ -569,9 +572,9 @@ void Lib_TextureRect_CI4_MirX(Gfx** gfxPtr, u8* texture, u16* palette, u32 width
+     gDPLoadTLUT_pal16((*gfxPtr)++, 0, palette);
+     gDPLoadTextureBlock_4b((*gfxPtr)++, texture, G_IM_FMT_CI, width, height, 0, G_TX_MIRROR | G_TX_WRAP,
+                            G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
+-                        (u16) (s32) (-1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
++        (u16) (s32) (-1.0f / xScale * 512.0f), (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_CI4_MirY(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32 height, f32 xPos, f32 yPos,
+@@ -579,9 +582,9 @@ void Lib_TextureRect_CI4_MirY(Gfx** gfxPtr, u8* texture, u16* palette, u32 width
+     gDPLoadTLUT_pal16((*gfxPtr)++, 0, palette);
+     gDPLoadTextureBlock_4b((*gfxPtr)++, texture, G_IM_FMT_CI, width, height, 0, G_TX_MIRROR | G_TX_WRAP,
+                            G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32,
+-                        (s32) (1.0f / xScale * 1024.0f), (u16) (s32) (-1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32, (s32) (1.0f / xScale * 512.0f),
++        (u16) (s32) (-1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_CI8(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+@@ -589,118 +592,116 @@ void Lib_TextureRect_CI8(Gfx** gfxPtr, u8* texture, u16* palette, u32 width, u32
+     gDPLoadTLUT_pal256((*gfxPtr)++, palette);
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_CI, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_RGBA16(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                             f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_RGBA16_MirX(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                  f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
+-                        (u16) (s32) (-1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
++        (u16) (s32) (-1.0f / xScale * 512.0f), (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA8(Gfx** gfxPtr, u8* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale, f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA8_FlipMirX(Gfx** gfxPtr, u8* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                   f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f),
+-                            (s32) ((xPos + height * xScale) * 4.0f), (s32) ((yPos + width * yScale) * 4.0f),
+-                            G_TX_RENDERTILE, (width - 1) * 32, 0, (u16) (s32) (-1.0f / yScale * 1024.0f),
+-                            (s32) (1.0f / xScale * 1024.0f));
++    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f),
++        (s32) ((xPos + height * xScale) * 8.0f), (s32) ((yPos + width * yScale) * 4.0f), G_TX_RENDERTILE,
++        (width - 1) * 32, 0, (u16) (s32) (-1.0f / yScale * 1024.0f), (s32) (1.0f / xScale * 512.0f));
+ }
+ 
+ void Lib_TextureRect_IA8_FlipMirY(Gfx** gfxPtr, u8* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                   f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f),
+-                            (s32) ((xPos + height * xScale) * 4.0f), (s32) ((yPos + width * yScale) * 4.0f),
+-                            G_TX_RENDERTILE, 0, (height - 1) * 32, (s32) (1.0f / yScale * 1024.0f),
+-                            (u16) (s32) (-1.0f / xScale * 1024.0f));
++    gSPTextureRectangleFlip((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f),
++        (s32) ((xPos + height * xScale) * 8.0f), (s32) ((yPos + width * yScale) * 4.0f), G_TX_RENDERTILE, 0,
++        (height - 1) * 32, (s32) (1.0f / yScale * 1024.0f), (u16) (s32) (-1.0f / xScale * 512.0f));
+ }
+ 
+ void Lib_TextureRect_IA8_MirX(Gfx** gfxPtr, u8* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                               f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
+-                        (u16) (s32) (-1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
++        (u16) (s32) (-1.0f / xScale * 512.0f), (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA8_MirY(Gfx** gfxPtr, u8* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                               f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32,
+-                        (s32) (1.0f / xScale * 1024.0f), (u16) (s32) (-1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32, (s32) (1.0f / xScale * 512.0f),
++        (u16) (s32) (-1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA16(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                           f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_16b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA16_MirX(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_16b, width, height, 0, G_TX_MIRROR | G_TX_WRAP,
+                         G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
+-                        (u16) (s32) (-1.0f / xScale * 1024.0f), (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, 0,
++        (u16) (s32) (-1.0f / xScale * 512.0f), (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA16_MirY(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_16b, width, height, 0, G_TX_MIRROR | G_TX_WRAP,
+                         G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32,
+-                        (s32) (1.0f / xScale * 1024.0f), (u16) (s32) (-1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, (height - 1) * 32, (s32) (1.0f / xScale * 512.0f),
++        (u16) (s32) (-1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_IA16_MirXY(Gfx** gfxPtr, u16* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                                 f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_IA, G_IM_SIZ_16b, width, height, 0, G_TX_MIRROR | G_TX_WRAP,
+                         G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, (height - 1) * 32,
+-                        (u16) (s32) (-1.0f / xScale * 1024.0f), (u16) (s32) (-1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, (width - 1) * 32, (height - 1) * 32,
++        (u16) (s32) (-1.0f / xScale * 512.0f), (u16) (s32) (-1.0f / yScale * 1024.0f));
+ }
+ 
+ void Lib_TextureRect_RGBA32(Gfx** gfxPtr, u32* texture, u32 width, u32 height, f32 xPos, f32 yPos, f32 xScale,
+                             f32 yScale) {
+     gDPLoadTextureBlock((*gfxPtr)++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+-    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 4.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 4.0f),
+-                        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 1024.0f),
+-                        (s32) (1.0f / yScale * 1024.0f));
++    gSPTextureRectangle((*gfxPtr)++, (s32) (xPos * 8.0f), (s32) (yPos * 4.0f), (s32) ((xPos + width * xScale) * 8.0f),
++        (s32) ((yPos + height * yScale) * 4.0f), G_TX_RENDERTILE, 0, 0, (s32) (1.0f / xScale * 512.0f),
++        (s32) (1.0f / yScale * 1024.0f));
+ }
+ 
+ void Graphics_FillRectangle(Gfx** gfxPtr, s32 ulx, s32 uly, s32 lrx, s32 lry, u8 r, u8 g, u8 b, u8 a) {
+@@ -712,7 +713,7 @@ void Graphics_FillRectangle(Gfx** gfxPtr, s32 ulx, s32 uly, s32 lrx, s32 lry, u8
+         gDPSetCycleType((*gfxPtr)++, G_CYC_1CYCLE);
+         gDPSetCombineMode((*gfxPtr)++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+         gDPSetRenderMode((*gfxPtr)++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+-        gDPFillRectangle((*gfxPtr)++, ulx, uly, lrx, lry);
++        gDPFillRectangle((*gfxPtr)++, 2 * ulx, uly, 2 * lrx, lry);
+     }
+ }
+ 
+diff --git a/src/sys/sys_fault.c b/src/sys/sys_fault.c
+index 3547780..a5902e7 100644
+--- a/src/sys/sys_fault.c
++++ b/src/sys/sys_fault.c
+@@ -329,7 +329,7 @@ void Fault_SetFrameBuffer(FrameBuffer* buffer, u16 width, u16 height) {
+ 
+ void Fault_Init(void) {
+     gFaultMgr.fb = (FrameBuffer*) (PHYS_TO_K0(osMemSize) - sizeof(FrameBuffer));
+-    gFaultMgr.width = SCREEN_WIDTH;
++    gFaultMgr.width = FRAMEBUFFER_WIDTH;
+     gFaultMgr.height = SCREEN_HEIGHT;
+     osCreateMesgQueue(&gFaultMgr.mesgQueue, &gFaultMgr.msg, 1);
+     osCreateThread(&gFaultMgr.thread, THREAD_ID_FAULT, Fault_ThreadEntry, 0, gFaultMgr.stack + sizeof(gFaultMgr.stack),
+diff --git a/src/sys/sys_lib.c b/src/sys/sys_lib.c
+index 9f0211a..1dca5d6 100644
+--- a/src/sys/sys_lib.c
++++ b/src/sys/sys_lib.c
+@@ -127,11 +127,11 @@ void Lib_FillScreen(u8 setFill) {
+             if (gFillScreenColor == 1) {
+                 osViBlack(true);
+             } else {
+-                for (i = 0; i < 3 * SCREEN_WIDTH; i++) {
++                for (i = 0; i < 3 * FRAMEBUFFER_WIDTH; i++) {
+                     gFillBuffer[i] = gFillScreenColor;
+                 }
+                 osWritebackDCacheAll();
+-                osViSwapBuffer(&gFillBuffer[SCREEN_WIDTH]);
++                osViSwapBuffer(&gFillBuffer[FRAMEBUFFER_WIDTH]);
+                 osViRepeatLine(true);
+             }
+             gFillScreen = true;
+diff --git a/src/sys/sys_main.c b/src/sys/sys_main.c
+index 2b76103..487f507 100644
+--- a/src/sys/sys_main.c
++++ b/src/sys/sys_main.c
+@@ -3,6 +3,7 @@
+ #include "mods.h"
+ 
+ s32 sGammaMode = 1;
++static OSViMode sNativeViMode;
+ 
+ SPTask* gCurrentTask;
+ SPTask* sAudioTasks[1];
+@@ -83,6 +84,12 @@ u8 gSerialThreadStack[0x1000];   // 800E0FB0
+ void Main_Initialize(void) {
+     u8 i;
+ 
++    /* Native raster buffers require Expansion RAM, NTSC timing. */
++    if (osMemSize < 0x800000 || osTvType != OS_TV_NTSC) {
++        osViBlack(true);
++        for (;;) {}
++    }
++
+     gVIsPerFrame = 0;
+     gSysFrameCount = 0;
+     gStartNMI = false;
+@@ -194,7 +201,12 @@ void Main_SetVIMode(void) {
+             break;
+         default:
+         case OS_TV_NTSC:
+-            osViSetMode(&osViModeNtscLan1);
++            sNativeViMode = osViModeNtscLan1;
++            sNativeViMode.comRegs.width = FRAMEBUFFER_WIDTH;
++            sNativeViMode.comRegs.xScale = 0x400;
++            sNativeViMode.fldRegs[0].origin = FRAMEBUFFER_WIDTH * 2;
++            sNativeViMode.fldRegs[1].origin = FRAMEBUFFER_WIDTH * 2;
++            osViSetMode(&sNativeViMode);
+             break;
+     }
+ 
+@@ -288,7 +300,7 @@ void Graphics_ThreadEntry(void* arg0) {
+             osViSwapBuffer(&gFrameBuffers[(gSysFrameCount - 1) % 3]);
+         }
+ 
+-        Fault_SetFrameBuffer(&gFrameBuffers[(gSysFrameCount - 1) % 3], SCREEN_WIDTH, 16);
++        Fault_SetFrameBuffer(&gFrameBuffers[(gSysFrameCount - 1) % 3], FRAMEBUFFER_WIDTH, 16);
+ 
+         visPerFrame = MIN(gVIsPerFrame, 4);
+         validVIsPerFrame = MAX(visPerFrame, gGfxVImesgQueue.validCount + 1);
+diff --git a/yamls/us/rev1/main.yaml b/yamls/us/rev1/main.yaml
+index bca97f0..144b936 100644
+--- a/yamls/us/rev1/main.yaml
++++ b/yamls/us/rev1/main.yaml
+@@ -411,7 +411,7 @@
+   - name: buffers
+     exclusive_ram_id: buffer
+     type: code
+-    vram: 0x80281000
+-    bss_size: 0x17F000
++    vram: 0x80400000
++    bss_size: 0x215780
+     subsegments:
+-    - { type: .bss, vram: 0x80281000, name: buffers }
++    - { type: .bss, vram: 0x80400000, name: buffers }

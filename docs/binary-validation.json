@@ -1,0 +1,10 @@
+{
+  "baseline_byte_exact": true,
+  "dma_table_offset": "0xde710",
+  "payload_entries_verified": 63,
+  "dma_table_entry_reencoded": true,
+  "max_compressed_staging_bytes": 191968,
+  "staging_capacity": 921600,
+  "buffer_end": "0x80615780",
+  "target_sha256": "d8bfb05df6c6c62e2a70a8d6242a081d2b41aff0d90ee69a65b667431199ea98"
+}

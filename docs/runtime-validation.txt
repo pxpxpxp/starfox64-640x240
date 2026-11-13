@@ -1,0 +1,31 @@
+STAR FOX 64 NATIVE 640x240 E01: SOFTWARE RUNTIME VALIDATION
+
+ROM tested: SHA256 d8bfb05df6c6c62e2a70a8d6242a081d2b41aff0d90ee69a65b667431199ea98
+Source: baf4a1e7779a6dd0e9a45f7e063c1df14e792c81
+
+METHOD
+Mupen64Plus 2.6, 8 MiB RAM, CPU dynarec, CXD4 low-level RSP and angrylion-rdp-plus software RDP/VI. Official renderer core is unchanged. A local headless output adapter captures the VI pixels without OpenGL/window scaling; script controller provides Start/A. No modified MiSTer Main is used.
+angrylion:9c8b9ed3e7d7f00dff8bc872ccdd3fba1a3673fc
+CXD4:69bbe12e1ebab0e2fadb3a4d640cb3ef880ca641
+
+OBSERVED PASS (LIMITED SMOKE TEST)
+- Cold boot, title, main menu and main-game entry.
+- Mission-map/briefing and Corneria level-intro transition.
+- Genuine Corneria gameplay after the intro, with health/lives/reticle/HUD, enemies and movement. Captured at 6000 VI.
+- Repeated pause/continue in gameplay. AtVI5970 play_state=100(PLAY_PAUSE), game_frame1886; atVI6000 play_state=2(PLAY_UPDATE), game_frame1898. AtVI6210 paused again, thenVI6240 resumed. Pause overlay and resumed image visually inspected.
+- Final run completed 6500 VI frames and exited cleanly.
+- Actual VI registers across every captured candidate checkpoint: width 640, X_SCALE0x400,Y_SCALE0x400,V_SYNC525,V_START0x2501ff,STATUS0x1300e. Serrate bit0x40 is clear: progressive output, not 480i. Colour origins cycle through relocated framebuffer addresses.
+- Clean baseline was also run 6000 VI: width 320,X_SCALE0x200,Y_SCALE0x400,progressive. This distinction verifies candidate native horizontal width rather than screenshot upscaling.
+
+CADENCE (NOT A HARDWARE BENCHMARK)
+Baseline and candidate sampled gVIsPerFrame=2. DuringVI4800..5400 both advanced300game frames over600VI(30gameframes/second at60VI). Absolute counters differ due to EEPROM/startup history, and later scripted pauses alter counts. This is a representative cadence sanity check, not an exactly matched scene benchmark. CPU/RDP emulation is not a cycle-accurate MiSTer performance prediction. Doubling horizontal pixels increases RDP work; hardware may slow in demanding scenes.
+
+IMAGES
+*-raw-VI-640x240.png are captured softwareVI pixels, not PVM photos.
+*-display-aspect-preview-640x480.png are vertical 2x nearest-neighbor presentation copies to show the intended 4:3 display shape. They are NOT 480-line rendering/interlaced output.
+
+NOT VERIFIED
+MiSTer/N64/PVM hardware, full game/all stages/endings, versus/multiplayer, training, rumble accessories, audio playback/listening, prolonged reliability, EEPROM persistence across power loss, every texture/effect. These require further testing. Audio/controller game code was not intentionally changed, but that is not a runtime accessory test.
+
+HARNESS LIMITS
+Dummy audio output and no controller accessory. Harmless setup warnings include missing ROM-name database, absent VRU/camera and first-run plugin attach-order warning; game identity was independently hashed. No host camera stream was obtained or used. Test output contains no ROM or raw RDRAM.

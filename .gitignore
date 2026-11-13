@@ -1,0 +1,13 @@
+/source/
+/baseline/
+/inputs/
+/build/
+/venv/
+__pycache__/
+*.z64
+*.v64
+*.n64
+*.bin
+*.elf
+*.o
+*.so
